@@ -16,7 +16,7 @@ Cereus by default will use GLX backend, but if this script detects an error at P
 
 ## Environment variables
 
-<code>picom-manager</code> works with environment variables. The most important is <code>$COMPOSITOR_MODE</code>. In LXQt ISOs this is defined at <code>~/.config/lxqt/session.conf</code>, but if you want to define it to <code>~/.profile</code> you MUST remove it from LXQt configuration first (this isn't necessary for any other desktop environment). 
+<code>picom-manager</code> works with environment variables. The most important is <code>$COMPOSITOR_MODE</code>. In LXQt ISOs this is defined at <code>$HOME/.config/lxqt/session.conf</code>, but if you want to define it to <code>~/.profile</code> you MUST remove it from LXQt configuration first (this isn't necessary for any other desktop environment). 
 
 Supported compositor modes are: <code>off</code> (disable compositor), <code>compatibility</code> (XRender backend), <code>opengl</code> (GLX backend) and <code>blur</code> (blur effects with GLX backend).
 
@@ -24,6 +24,12 @@ Supported compositor modes are: <code>off</code> (disable compositor), <code>com
 
 LXQt allows to define environment variables graphically. We consider this ideal for begginner users.
 
+## Installing
+
+LXQt edition by default ships this package (which is available at cereus-extra repository). If you need to install it manually, run:
+
+    # xbps-install -S picom-manager
+
 ## Using on other distributions
 
-You could probably use this tool in other distros, it does needs to be patched first to not use certain Cereus specific paths and commands. We'll consider doing this in the future.
+You could probably use this tool in other distros, but it does needs to be patched first to not use certain Cereus specific paths and commands. We'll consider doing this in the future.
