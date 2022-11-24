@@ -1,7 +1,11 @@
 #!/bin/sh
 
-CONFIG_DIR="$HOME/.config/picom.conf.d"
 EXTRA_FLAGS=""
+CONFIG_DIR="$HOME/.config/picom.conf.d"
+
+if [ ! -d $CONFIG_DIR ]; then
+    cp -r /etc/default/picom.conf.d $HOME/.config/
+fi
 
 if [ -f $HOME/.config/picom.conf ]; then
     DEFAULT_CONFIG="$HOME/.config/picom.conf"
@@ -32,28 +36,35 @@ toggle() {
     
     if [ $exitstatus = 0 ]; then
 	    echo "Stopping compositor"
+        TOGGLE_SIGNAL=1
         pkill picom &
-        rm -v /tmp/picom.log
+        rm /tmp/picom.log
     else
 	    echo "Starting compositor picom $(picom --version)"
+        if [ $COMPOSITOR_MODE = "custom" ]; then
+            echo "Using user-defined custom configuration."
+        fi
+        TOGGLE_SIGNAL=0
 	    picom ${flags} --config $PICOM_CONFIG
     fi
 }
 
 backend_fallback() {
-    # Checks if GLX fails
-    cat /tmp/picom.log | grep "glx_init ERROR"
-    GLX_STATUS_ERROR="$?"
+    if [ $TOGGLE_SIGNAL = 0 ]; then
+        # Checks if GLX fails
+        cat /tmp/picom.log | grep "glx_init ERROR"
+        GLX_STATUS_ERROR="$?"
     
-    if [ $GLX_STATUS_ERROR = 0 ]; then
-        # Change backend to xrender
-        $COMPOSITOR_MODE="compatibility"
+        if [ $GLX_STATUS_ERROR = 0 ]; then
+            # Change backend to xrender
+            $COMPOSITOR_MODE="compatibility"
     
-        for profile_file in $HOME/.config/lxqt/session.conf $HOME/.profile; do
-            sed -i 's|COMPOSITOR_MODE=.*|COMPOSITOR_MODE=compatibility|g' ${profile_file}
-        done
+            for profile_file in $HOME/.config/lxqt/session.conf $HOME/.profile; do
+                sed -i 's|COMPOSITOR_MODE=.*|COMPOSITOR_MODE=compatibility|g' ${profile_file}
+            done
 
-        toggle
+            toggle
+        fi
     fi
 }
 
@@ -72,8 +83,6 @@ run_compositor() {
         case $COMPOSITOR_MODE in
             off)
                 die "Compositor is disabled at environment." ;;
-            custom)
-                echo "Using user-defined custom configuration." ;;
             compatibility)
                 check_configs ;;
             opengl)
@@ -90,7 +99,7 @@ run_compositor() {
 }
 
 help() {
-    echo "picom-manager - 2022.11.23_1
+    echo "picom-manager - 2022.11.24_1
 Custom script to manage Picom behavior on Cereus Linux
 Please report bugs to https://github.com/CereusLinuxProject/picom-manager
     
@@ -100,7 +109,7 @@ OPTIONS:
     -c [CONFIG_FILE]         Custom configuration path to use.
     -d                       Override picom-manager configurations and use user-defined instead.
     -h                       Shows this help.
-    -f [--flag ...] Add an extra flag to compositor. May be used many times.
+    -f [--flag]              Add an extra flag to compositor. May be used many times.
     -m [MODE]                Override environment compositor mode. Possible values are: off, compatibility, opengl and blur.
     -t                       Toggle the compositor."
 }
@@ -117,3 +126,10 @@ while getopts "c:df:hm:r:t" opt; do
     esac
 done
 shift $((OPTIND - 1))
+
+# If there is no argument, show help.
+if [ "$#" -eq 0 ]
+then
+    help >&2
+    exit 1
+fi
