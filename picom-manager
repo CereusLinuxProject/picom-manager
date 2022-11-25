@@ -14,7 +14,7 @@ else
 fi
 
 detect() {
-	 pgrep -u $UID -x picom >/dev/null
+	 pgrep -u $USER -x picom >/dev/null
 	 exitstatus=$?
 }
 
@@ -118,13 +118,6 @@ OPTIONS:
     -t                       Toggle the compositor."
 }
 
-if [ "$#" -eq 0 ]
-then
-    help >&2
-    exit 1
-fi
-
-
 while getopts "c:df:hm:r:t" opt; do
     case $opt in
         c) PICOM_CONFIG="$OPTARG"; COMPOSITOR_MODE="custom";;
@@ -137,6 +130,4 @@ while getopts "c:df:hm:r:t" opt; do
     esac
 done
 shift $((OPTIND - 1))
-
-# If there is no argument, show help.
 
