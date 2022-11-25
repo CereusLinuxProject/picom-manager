@@ -103,7 +103,7 @@ run_compositor() {
 }
 
 help() {
-    echo "picom-manager - 2022.11.24_1
+    echo "picom-manager
 Custom script to manage Picom behavior on Cereus Linux
 Please report bugs to https://github.com/CereusLinuxProject/picom-manager
     
